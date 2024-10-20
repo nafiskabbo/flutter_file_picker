@@ -291,7 +291,14 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
         final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
-
+        final String absolutePath;
+        try {
+            absolutePath = FileUtils.getRealPathFromURI(context, uri);
+        } catch (final Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to retrieve absolute path: " + e.getMessage(), null);
+            absolutePath = null;
+        }
         final File file = new File(path);
 
         if(!file.exists()) {
@@ -333,6 +340,7 @@ public class FileUtils {
 
         fileInfo
                 .withPath(path)
+                .withAbsolutePath(absolutePath)
                 .withName(fileName)
                 .withUri(uri)
                 .withSize(Long.parseLong(String.valueOf(file.length())));
