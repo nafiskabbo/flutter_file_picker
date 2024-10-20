@@ -291,7 +291,7 @@ public class FileUtils {
         final FileInfo.Builder fileInfo = new FileInfo.Builder();
         final String fileName = FileUtils.getFileName(uri, context);
         final String path = context.getCacheDir().getAbsolutePath() + "/file_picker/"+System.currentTimeMillis() +"/"+ (fileName != null ? fileName : "unamed");
-        final String absolutePath;
+        String absolutePath;
         try {
             absolutePath = FileUtils.getRealPathFromURI(context, uri);
         } catch (final Exception e) {
