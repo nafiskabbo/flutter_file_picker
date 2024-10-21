@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 class PlatformFile {
   PlatformFile({
     String? path,
-    String? uri,
     required this.name,
     required this.size,
     this.bytes,
@@ -20,7 +19,6 @@ class PlatformFile {
     return PlatformFile(
       name: data['name'],
       path: data['path'],
-      uri: data['uri'],
       bytes: data['bytes'],
       size: data['size'],
       identifier: data['identifier'],
