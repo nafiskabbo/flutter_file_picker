@@ -11,8 +11,7 @@ final MethodChannel _channel = MethodChannel(
       : const StandardMethodCodec(),
 );
 
-const EventChannel _eventChannel =
-    EventChannel('miguelruivo.flutter.plugins.filepickerevent');
+const EventChannel _eventChannel = EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
@@ -52,8 +51,19 @@ class FilePickerIO extends FilePicker {
       );
 
   @override
-  Future<bool?> clearTemporaryFiles() async =>
-      _channel.invokeMethod<bool>('clear');
+  Future<bool?> clearTemporaryFiles() async => _channel.invokeMethod<bool>('clear');
+
+  @override
+  Future<String?> readTextFromUri(String? uri) async => _channel.invokeMethod<String?>('readText', {
+        'uri': uri,
+      });
+
+  @override
+  Future<bool?> writeTexStringToFile(String? uri, String? content) async =>
+      _channel.invokeMethod<bool>('writeText', {
+        'uri': uri,
+        'content': content,
+      });
 
   @override
   Future<String?> getDirectoryPath({
@@ -96,9 +106,8 @@ class FilePickerIO extends FilePicker {
       _eventSubscription?.cancel();
       if (onFileLoading != null) {
         _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
-              (data) => onFileLoading((data as bool)
-                  ? FilePickerStatus.picking
-                  : FilePickerStatus.done),
+              (data) =>
+                  onFileLoading((data as bool) ? FilePickerStatus.picking : FilePickerStatus.done),
               onError: (error) => throw Exception(error),
             );
       }
@@ -122,9 +131,7 @@ class FilePickerIO extends FilePicker {
         platformFiles.add(
           PlatformFile.fromMap(
             platformFileMap,
-            readStream: withReadStream!
-                ? File(platformFileMap['path']).openRead()
-                : null,
+            readStream: withReadStream! ? File(platformFileMap['path']).openRead() : null,
           ),
         );
       }
@@ -134,8 +141,7 @@ class FilePickerIO extends FilePicker {
       print('[$_tag] Platform exception: $e');
       rethrow;
     } catch (e) {
-      print(
-          '[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
+      print('[$_tag] Unsupported operation. Method not found. The exception thrown was: $e');
       rethrow;
     }
   }

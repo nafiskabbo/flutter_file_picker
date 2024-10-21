@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 class PlatformFile {
   PlatformFile({
     String? path,
-    String? absolutePath,
+    String? uri,
     required this.name,
     required this.size,
     this.bytes,
@@ -20,16 +20,13 @@ class PlatformFile {
     return PlatformFile(
       name: data['name'],
       path: data['path'],
-      absolutePath: data['absolutePath'],
+      uri: data['uri'],
       bytes: data['bytes'],
       size: data['size'],
       identifier: data['identifier'],
       readStream: readStream,
     );
   }
-
-  /// For Android only, if it has permission, it will give the real absolute Path of file
-  String? absolutePath;
 
   /// The absolute path for a cached copy of this file. It can be used to create a
   /// file instance with a descriptor for the given path.
@@ -95,7 +92,6 @@ class PlatformFile {
 
     return other is PlatformFile &&
         (kIsWeb || other.path == path) &&
-        other.absolutePath == absolutePath &&
         other.name == name &&
         other.bytes == bytes &&
         other.readStream == readStream &&
@@ -108,7 +104,6 @@ class PlatformFile {
     return kIsWeb
         ? 0
         : path.hashCode ^
-            absolutePath.hashCode ^
             name.hashCode ^
             bytes.hashCode ^
             readStream.hashCode ^
@@ -118,6 +113,6 @@ class PlatformFile {
 
   @override
   String toString() {
-    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, absolutePath: $absolutePath, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
+    return 'PlatformFile(${kIsWeb ? '' : 'path $path'}, uri: $identifier, name: $name, bytes: $bytes, readStream: $readStream, size: $size)';
   }
 }

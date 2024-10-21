@@ -2,6 +2,7 @@ package com.mr.flutter.plugin.filepicker;
 
 import android.app.Activity;
 import android.app.Application;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -127,6 +128,19 @@ public class FilePickerPlugin implements MethodChannel.MethodCallHandler, Flutte
 
         final MethodChannel.Result result = new MethodResultWrapper(rawResult);
         final HashMap arguments = (HashMap) call.arguments;
+
+        if (call.method != null && call.method.equals("readText")) {
+            String uri = (String) arguments.get("uri");
+            result.success(FileUtils.readTextFromUri(activity.getApplicationContext(), Uri.parse(uri)));
+            return;
+        }
+
+        if (call.method != null && call.method.equals("writeText")) {
+            String uri = (String) arguments.get("uri");
+            String content = (String) arguments.get("content");
+            result.success(FileUtils.writeTextStringToFile(activity.getApplicationContext(), Uri.parse(uri), content));
+            return;
+        }
 
         if (call.method != null && call.method.equals("clear")) {
             result.success(FileUtils.clearCache(activity.getApplicationContext()));

@@ -104,8 +104,14 @@ abstract class FilePicker extends PlatformInterface {
   /// This method is only available on mobile platforms (Android & iOS).
   ///
   /// Returns `true` if the files were removed with success, `false` otherwise.
-  Future<bool?> clearTemporaryFiles() async => throw UnimplementedError(
-      'clearTemporaryFiles() has not been implemented.');
+  Future<bool?> clearTemporaryFiles() async =>
+      throw UnimplementedError('clearTemporaryFiles() has not been implemented.');
+
+  Future<String?> readTextFromUri(String? uri) async =>
+      throw UnimplementedError('readTextFromUri() has not been implemented.');
+
+  Future<bool?> writeTexStringToFile(String? uri, String? content) async =>
+      throw UnimplementedError('writeTexStringToFile() has not been implemented.');
 
   /// Selects a directory and returns its absolute path.
   ///
