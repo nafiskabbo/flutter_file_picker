@@ -88,6 +88,7 @@ abstract class FilePicker extends PlatformInterface {
     bool allowCompression = true,
     int compressionQuality = 30,
     bool allowMultiple = false,
+    bool isLocalOnly = true,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,

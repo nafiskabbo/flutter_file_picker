@@ -41,6 +41,7 @@ class FilePickerWeb extends FilePicker {
     FileType type = FileType.any,
     List<String>? allowedExtensions,
     bool allowMultiple = false,
+    bool isLocalOnly = true,
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
     bool withData = true,

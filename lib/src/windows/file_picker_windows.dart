@@ -25,6 +25,7 @@ class FilePickerWindows extends FilePicker {
     Function(FilePickerStatus)? onFileLoading,
     bool allowCompression = true,
     bool allowMultiple = false,
+    bool isLocalOnly = true,
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
