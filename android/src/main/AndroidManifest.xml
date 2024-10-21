@@ -5,6 +5,7 @@
      <intent>
         <action android:name="android.intent.action.GET_CONTENT" />
         <data android:mimeType="*/*"/>
+        <category android:name="android.intent.category.OPENABLE" />
     </intent>
     </queries>
 </manifest>
