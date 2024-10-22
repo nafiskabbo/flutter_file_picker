@@ -125,97 +125,93 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             this.dispatchEventStatus(true);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (data != null) {
-                        final ArrayList<FileInfo> files = new ArrayList<>();
+            new Thread(() -> {
+                if (data != null) {
+                    final ArrayList<FileInfo> files = new ArrayList<>();
 
-                        if (data.getClipData() != null) {
-                            final int count = data.getClipData().getItemCount();
-                            int currentItem = 0;
-                            while (currentItem < count) {
-                                Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
-
-                                if (Objects.equals(type, "image/*") && compressionQuality > 0) {
-                                    currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
-                                }
-                                final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
-                                if (file != null) {
-                                    files.add(file);
-                                    Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
-                                }
-                                currentItem++;
-                            }
-
-                            finishWithSuccess(files);
-                        } else if (data.getData() != null) {
-                            Uri uri = data.getData();
+                    if (data.getClipData() != null) {
+                        final int count = data.getClipData().getItemCount();
+                        int currentItem = 0;
+                        while (currentItem < count) {
+                            Uri currentUri = data.getClipData().getItemAt(currentItem).getUri();
 
                             if (Objects.equals(type, "image/*") && compressionQuality > 0) {
-                                uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
+                                currentUri = FileUtils.compressImage(currentUri, compressionQuality, activity.getApplicationContext());
                             }
-
-                            if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
-
-                                Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
-                                final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
-
-                                if (dirPath != null) {
-                                    finishWithSuccess(dirPath);
-                                } else {
-                                    finishWithError("unknown_path", "Failed to retrieve directory path.");
-                                }
-                                return;
-                            }
-
-                            final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-
-                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
-
+                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
                             if (file != null) {
                                 files.add(file);
+                                Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
                             }
+                            currentItem++;
+                        }
 
-                            if (!files.isEmpty()) {
-                                Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
-                                finishWithSuccess(files);
+                        finishWithSuccess(files);
+                    } else if (data.getData() != null) {
+                        Uri uri = data.getData();
+                        final int takeFlags = (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+
+                        if (Objects.equals(type, "image/*") && compressionQuality > 0) {
+                            uri = FileUtils.compressImage(uri, compressionQuality, activity.getApplicationContext());
+                        }
+
+                        if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+
+                            Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
+                            final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
+
+                            if (dirPath != null) {
+                                finishWithSuccess(dirPath);
                             } else {
-                                finishWithError("unknown_path", "Failed to retrieve path.");
+                                finishWithError("unknown_path", "Failed to retrieve directory path.");
                             }
+                            return;
+                        }
 
-                        } else if (data.getExtras() != null) {
-                            Bundle bundle = data.getExtras();
-                            if (bundle.keySet().contains("selectedItems")) {
-                                ArrayList<Parcelable> fileUris = getSelectedItems(bundle);
+                        final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, uri, loadDataToMemory);
 
-                                int currentItem = 0;
-                                if (fileUris != null) {
-                                    for (Parcelable fileUri : fileUris) {
-                                        if (fileUri instanceof Uri) {
-                                            Uri currentUri = (Uri) fileUri;
-                                            final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+                        if (file != null) {
+                            files.add(file);
+                        }
 
-                                            if (file != null) {
-                                                files.add(file);
-                                                Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
-                                            }
-                                        }
-                                        currentItem++;
-                                    }
-                                }
-                                finishWithSuccess(files);
-                            } else {
-                                finishWithError("unknown_path", "Failed to retrieve path from bundle.");
-                            }
+                        if (!files.isEmpty()) {
+                            Log.d(FilePickerDelegate.TAG, "File path:" + files.toString());
+                            finishWithSuccess(files);
                         } else {
-                            finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
+                            finishWithError("unknown_path", "Failed to retrieve path.");
+                        }
+
+                    } else if (data.getExtras() != null) {
+                        Bundle bundle = data.getExtras();
+                        if (bundle.keySet().contains("selectedItems")) {
+                            ArrayList<Parcelable> fileUris = getSelectedItems(bundle);
+
+                            int currentItem = 0;
+                            if (fileUris != null) {
+                                for (Parcelable fileUri : fileUris) {
+                                    if (fileUri instanceof Uri) {
+                                        Uri currentUri = (Uri) fileUri;
+                                        final FileInfo file = FileUtils.openFileStream(FilePickerDelegate.this.activity, currentUri, loadDataToMemory);
+
+                                        if (file != null) {
+                                            files.add(file);
+                                            Log.d(FilePickerDelegate.TAG, "[MultiFilePick] File #" + currentItem + " - URI: " + currentUri.getPath());
+                                        }
+                                    }
+                                    currentItem++;
+                                }
+                            }
+                            finishWithSuccess(files);
+                        } else {
+                            finishWithError("unknown_path", "Failed to retrieve path from bundle.");
                         }
                     } else {
                         finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                     }
+                } else {
+                    finishWithError("unknown_activity", "Unknown activity error, please fill an issue.");
                 }
             }).start();
             return true;
