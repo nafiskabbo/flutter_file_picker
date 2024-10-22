@@ -158,6 +158,7 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
                         if (type.equals("dir") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             uri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+                            activity.getContentResolver().takePersistableUriPermission(uri, takeFlags);
 
                             Log.d(FilePickerDelegate.TAG, "[SingleFilePick] File URI:" + uri.toString());
                             final String dirPath = FileUtils.getFullPathFromTreeUri(uri, activity);
@@ -276,6 +277,8 @@ public class FilePickerDelegate implements PluginRegistry.ActivityResultListener
 
         if (type.equals("dir")) {
             intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         } else {
             if (type.equals("image/*")) {
                 intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
